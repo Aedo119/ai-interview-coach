@@ -14,7 +14,7 @@ An AI-powered interview coaching app with real-time feedback, user auth, and ses
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Clone & Install
 
@@ -71,7 +71,7 @@ Open http://localhost:5173
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 interview-coach/
