@@ -1,11 +1,16 @@
-# AI Interview Coach
+# AI Interview Coach 🎯
 
 An AI-powered interview coaching app with real-time feedback, user auth, and session history.
 
 ## Tech Stack
-- **Frontend:** React 18 + Tailwind CSS + Vite
-- **Backend:** Node.js + Express
-- **AI:** Gemini API 
+
+| Layer    | Tech                        |
+|----------|-----------------------------|
+| Frontend | React 18 + Tailwind CSS + Vite |
+| Backend  | Node.js + Express           |
+| AI       | Google Gemini API (free)    |
+| Database | PostgreSQL                  |
+| Auth     | JWT (bcryptjs)              |
 
 ---
 
@@ -62,6 +67,8 @@ cd frontend
 npm run dev
 ```
 
+Open http://localhost:5173
+
 ---
 
 ## 📁 Project Structure
@@ -107,3 +114,19 @@ interview-coach/
         ├── App.jsx
         └── main.jsx
 ```
+
+---
+
+
+## API Endpoints
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/questions` | No | Fetch question bank |
+| POST | `/api/feedback` | No | Get AI feedback on answer |
+| POST | `/api/auth/register` | No | Create account |
+| POST | `/api/auth/login` | No | Sign in |
+| GET | `/api/auth/me` | Yes | Get current user |
+| GET | `/api/history` | Yes | Fetch session history |
+| POST | `/api/history` | Yes | Save a session |
+| DELETE | `/api/history/:id` | Yes | Delete a session |
