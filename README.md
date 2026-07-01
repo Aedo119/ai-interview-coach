@@ -1,4 +1,4 @@
-# AI Interview Coach 🎯
+# AI Interview Coach 
 
 An AI-powered interview coaching app with real-time feedback, user auth, and session history.
 
