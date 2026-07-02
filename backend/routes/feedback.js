@@ -17,7 +17,7 @@ async function callGemini(prompt) {
     try {
       const model = genAI.getGenerativeModel({
         model: modelName,
-        generationConfig: { temperature: 0.4, maxOutputTokens: 1500 },
+        generationConfig: { temperature: 0.4, maxOutputTokens: 2048 },
       });
       const result = await model.generateContent(prompt);
       console.log(`✅ Success with model: ${modelName}`);

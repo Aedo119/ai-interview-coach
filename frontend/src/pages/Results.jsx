@@ -96,7 +96,7 @@ export default function Results() {
         </div>
 
         <p className="text-xs text-slate-700 text-center mt-8">
-          History is stored for this browser session · Sprint 2 adds persistent storage →
+          History is stored for this browser session ·
         </p>
       </div>
     </main>
