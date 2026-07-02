@@ -1,16 +1,17 @@
-# AI Interview Coach 
+# AI Interview Coach
 
-An AI-powered interview coaching app with real-time feedback, user auth, and session history.
+An AI-powered interview coaching app with real-time feedback, speech-to-text input, visual scoring, user auth, and session history.
 
 ## Tech Stack
 
-| Layer    | Tech                        |
-|----------|-----------------------------|
-| Frontend | React 18 + Tailwind CSS + Vite |
-| Backend  | Node.js + Express           |
-| AI       | Google Gemini API (free)    |
-| Database | PostgreSQL                  |
-| Auth     | JWT (bcryptjs)              |
+| Layer    | Tech                              |
+|----------|-----------------------------------|
+| Frontend | React 18 + Tailwind CSS + Vite    |
+| Backend  | Node.js + Express                 |
+| AI       | Google Gemini API (free)          |
+| Database | PostgreSQL                        |
+| Auth     | JWT + bcryptjs                    |
+| Speech   | Web Speech API (Chrome built-in)  |
 
 ---
 
@@ -67,42 +68,45 @@ cd frontend
 npm run dev
 ```
 
-Open http://localhost:5173
+> **Note:** Speech-to-text requires Chrome or Edge. Safari does not support the Web Speech API.
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 interview-coach/
 ├── backend/
 │   ├── db/
-│   │   └── schema.sql          # Run once to set up PostgreSQL
+│   │   └── schema.sql              # Run once to set up PostgreSQL
 │   ├── routes/
-│   │   ├── auth.js             # Register, login, /me
-│   │   ├── feedback.js         # Gemini AI feedback endpoint
-│   │   ├── history.js          # Save & fetch session history
-│   │   └── questions.js        # Question bank API
+│   │   ├── auth.js                 # Register, login, /me
+│   │   ├── feedback.js             # Gemini AI feedback endpoint
+│   │   ├── history.js              # Save & fetch session history
+│   │   └── questions.js            # Question bank API
 │   ├── middleware/
-│   │   ├── auth.js             # JWT verification
+│   │   ├── auth.js                 # JWT verification
 │   │   └── errorHandler.js
 │   ├── data/
-│   │   └── questions.js        # 50+ questions across 5 categories
-│   ├── db.js                   # PostgreSQL connection pool
+│   │   └── questions.js            # 50+ questions across 5 categories
+│   ├── db.js                       # PostgreSQL connection pool
 │   ├── server.js
 │   ├── package.json
 │   └── .env.example
 └── frontend/
     └── src/
         ├── components/
-        │   ├── FeedbackPanel.jsx
+        │   ├── FeedbackPanel.jsx   # Tabbed feedback: Overview / STAR / Improved Answer
         │   ├── Navbar.jsx
         │   ├── ProgressBar.jsx
-        │   └── QuestionCard.jsx
+        │   ├── QuestionCard.jsx
+        │   ├── ScoreChart.jsx      # Radar chart + animated bar chart
+        │   └── SpeechButton.jsx    # Mic button with pulse animation
         ├── context/
         │   └── AuthContext.jsx     # Global auth state
         ├── hooks/
-        │   └── useInterview.js
+        │   ├── useInterview.js
+        │   └── useSpeech.js        # Web Speech API hook
         ├── pages/
         │   ├── Home.jsx
         │   ├── Login.jsx
@@ -117,7 +121,6 @@ interview-coach/
 
 ---
 
-
 ## API Endpoints
 
 | Method | Endpoint | Auth | Description |
@@ -130,3 +133,17 @@ interview-coach/
 | GET | `/api/history` | Yes | Fetch session history |
 | POST | `/api/history` | Yes | Save a session |
 | DELETE | `/api/history/:id` | Yes | Delete a session |
+
+---
+
+## Features
+
+- **AI Feedback** — Google Gemini evaluates every answer across 5 dimensions
+- **Visual Scoring** — Radar chart + animated bars showing clarity, relevance, depth, structure, impact
+- **STAR Analysis** — Breakdown of how well your answer follows Situation / Task / Action / Result
+- **Improved Answer** — Model answer rewritten by AI to demonstrate best practices
+- **Speech-to-Text** — Speak your answer directly using your microphone (Chrome/Edge)
+- **50+ Questions** — Behavioral, technical, system design, situational, and culture fit
+- **Auth** — JWT-based register/login with bcrypt password hashing
+- **Session History** — All sessions saved to PostgreSQL, viewable and deletable
+- **Security** — Rate limiting, helmet headers, XSS protection on all API routes
