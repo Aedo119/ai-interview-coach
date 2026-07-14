@@ -65,25 +65,25 @@ export default function Practice() {
   };
 
   if (isLoadingQ) return (
-    <main className="min-h-screen pt-14 flex items-center justify-center">
+    <main className="min-h-screen pt-14 flex items-center justify-center" style={{ background: 'var(--bg)' }}>
       <div className="text-center">
-        <div className="w-10 h-10 border-2 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-slate-500 text-sm">Loading questions…</p>
+        <div className="w-10 h-10 border-2 border-t-transparent rounded-full animate-spin mx-auto mb-4" style={{ borderColor: 'var(--accent-soft)', borderTopColor: 'var(--accent)' }} />
+        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading questions…</p>
       </div>
     </main>
   );
 
   return (
-    <main className="min-h-screen pt-14 pb-20">
+    <main className="min-h-screen pt-14 pb-20" style={{ background: 'var(--bg)' }}>
       <div className="max-w-3xl mx-auto px-4 py-8">
 
         {/* Track badge or category filter */}
         {trackInfo ? (
           <div className="flex items-center gap-3 mb-6">
-            <span className="badge bg-brand-600/20 border border-brand-600/30 text-brand-400 text-sm">
+            <span className="text-sm px-3 py-1.5 rounded-lg" style={{ background: 'var(--accent-soft)', border: '1px solid var(--accent-glow)', color: 'var(--accent)' }}>
               {trackInfo.icon} {trackInfo.label} Track
             </span>
-            <a href="/practice" className="text-xs text-slate-600 hover:text-slate-400 transition-colors">
+            <a href="/practice" className="text-xs transition-colors" style={{ color: 'var(--text-muted)', textDecoration: 'none' }} onMouseEnter={e => e.target.style.color = 'var(--accent)'} onMouseLeave={e => e.target.style.color = 'var(--text-muted)'}>
               ← Switch to general
             </a>
           </div>
@@ -91,11 +91,13 @@ export default function Practice() {
           <div className="flex gap-2 flex-wrap mb-6">
             {CATEGORIES.map(cat => (
               <button key={cat.id} onClick={() => handleCategoryChange(cat.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  selectedCategory === cat.id
-                    ? 'bg-brand-600 text-white'
-                    : 'bg-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-700'
-                }`}>
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                style={{
+                  background: selectedCategory === cat.id ? 'var(--accent)' : 'var(--bg-card)',
+                  color: selectedCategory === cat.id ? '#fff' : 'var(--text-muted)',
+                  border: `1px solid ${selectedCategory === cat.id ? 'var(--accent)' : 'var(--border)'}`,
+                  cursor: 'pointer',
+                }}>
                 {cat.icon} {cat.label}
               </button>
             ))}
@@ -115,20 +117,26 @@ export default function Practice() {
             {!feedback && (
               <div className="mt-4 space-y-3 animate-fade-in">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-slate-400">Your Answer</label>
+                  <label className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>Your Answer</label>
                   <div className="flex items-center gap-3">
                     <button onClick={() => setShowTips(t => !t)}
-                      className="text-xs text-brand-400 hover:text-brand-300 transition-colors">
+                      className="text-xs transition-colors" style={{ color: 'var(--accent)', textDecoration: 'none', background: 'none', border: 'none', cursor: 'pointer' }}>
                       {showTips ? 'Hide tips' : 'Show tips'}
                     </button>
-                    <span className={`text-xs font-mono ${wordCount > 50 ? 'text-emerald-400' : 'text-slate-600'}`}>
+                    <span className="text-xs font-mono" style={{ color: wordCount > 50 ? '#10B981' : 'var(--text-subtle)' }}>
                       {wordCount} words
                     </span>
                   </div>
                 </div>
 
                 <textarea
-                  className="textarea-answer"
+                  className="textarea-answer w-full p-3 rounded-lg border focus:outline-none transition-colors focus:ring-2"
+                  style={{
+                    background: 'var(--bg-card)',
+                    color: 'var(--text)',
+                    borderColor: 'var(--border)',
+                    focusRing: 'var(--accent)',
+                  }}
                   placeholder="Type your answer, or click 'Speak Answer' to use your microphone…"
                   value={answer}
                   onChange={e => setAnswer(e.target.value)}
@@ -146,7 +154,7 @@ export default function Practice() {
                     onToggle={speech.toggle}
                   />
                   {speech.isListening && (
-                    <div className="flex items-center gap-1.5 text-xs text-red-400">
+                    <div className="flex items-center gap-1.5 text-xs" style={{ color: '#EF4444' }}>
                       <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
                       Recording…
                     </div>
@@ -154,13 +162,24 @@ export default function Practice() {
                 </div>
 
                 {error && (
-                  <div className="p-3 bg-red-900/20 border border-red-800/40 rounded-xl text-sm text-red-400">{error}</div>
+                  <div className="p-3 rounded-xl text-sm border" style={{
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    borderColor: 'rgba(239, 68, 68, 0.3)',
+                    color: '#EF4444'
+                  }}>
+                    {error}
+                  </div>
                 )}
 
                 <div className="flex items-center justify-between pt-1">
-                  <button onClick={skipQuestion} className="btn-ghost text-sm">Skip →</button>
+                  <button onClick={skipQuestion} className="text-sm transition-colors" style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>Skip →</button>
                   <button onClick={submitAnswer} disabled={isLoading || answer.trim().length < 20}
-                    className="btn-primary flex items-center gap-2">
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors" style={{
+                      background: isLoading || answer.trim().length < 20 ? 'var(--accent)' : 'var(--accent)',
+                      color: '#fff',
+                      opacity: isLoading || answer.trim().length < 20 ? 0.5 : 1,
+                      cursor: isLoading || answer.trim().length < 20 ? 'not-allowed' : 'pointer',
+                    }}>
                     {isLoading ? (
                       <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Analyzing…</>
                     ) : (
@@ -169,7 +188,7 @@ export default function Practice() {
                   </button>
                 </div>
                 {answer.trim().length > 0 && answer.trim().length < 20 && (
-                  <p className="text-xs text-slate-600 text-right">Answer needs to be a bit longer</p>
+                  <p className="text-xs text-right" style={{ color: 'var(--text-muted)' }}>Answer needs to be a bit longer</p>
                 )}
               </div>
             )}
@@ -184,9 +203,9 @@ export default function Practice() {
             )}
           </>
         ) : (
-          <div className="card p-12 text-center">
-            <p className="text-slate-400 mb-4">No questions loaded.</p>
-            <button onClick={() => loadQuestions()} className="btn-primary">Load Questions</button>
+          <div className="card p-12 text-center" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
+            <p className="mb-4" style={{ color: 'var(--text-muted)' }}>No questions loaded.</p>
+            <button onClick={() => loadQuestions()} className="px-4 py-2 rounded-lg font-medium text-white transition-colors" style={{ background: 'var(--accent)', cursor: 'pointer' }}>Load Questions</button>
           </div>
         )}
       </div>

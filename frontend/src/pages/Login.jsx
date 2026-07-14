@@ -26,7 +26,7 @@ export default function Login() {
           <h1 className="text-2xl font-bold mb-2" style={{ fontFamily: 'DM Sans, sans-serif', color: 'var(--text)' }}>Welcome back</h1>
           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Sign in to access your history and analytics</p>
         </div>
-        <div className="card p-6">
+        <div className="card p-6" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
           <form onSubmit={handleSubmit} className="space-y-4">
             {[['email','Email','you@example.com','email'],['password','Password','••••••••','password']].map(([k,l,p,t]) => (
               <div key={k}>
@@ -35,7 +35,7 @@ export default function Login() {
               </div>
             ))}
             {error && <p className="text-sm px-3 py-2 rounded-lg" style={{ color: '#ef4444', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>{error}</p>}
-            <button type="submit" disabled={loading} className="btn btn-primary w-full justify-center py-2.5">
+            <button type="submit" disabled={loading} className="btn btn-primary w-full justify-center py-2.5 rounded-lg">
               {loading ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
