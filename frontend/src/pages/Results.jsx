@@ -3,27 +3,35 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../utils/api';
 
-function ScorePill({ score }) {
-  let bgColor, textColor;
-  if (score >= 75) {
-    bgColor = 'rgba(16, 185, 129, 0.1)';
-    textColor = '#10B981';
-  } else if (score >= 50) {
-    bgColor = 'rgba(245, 158, 11, 0.1)';
-    textColor = '#F59E0B';
-  } else {
-    bgColor = 'rgba(239, 68, 68, 0.1)';
-    textColor = '#EF4444';
-  }
-  return <span className="badge font-mono font-semibold text-xs px-2 py-1" style={{ background: bgColor, color: textColor }}>{score}</span>;
-}
-
 function parseScores(scores) {
   if (!scores) return null;
-  if (typeof scores === 'string') {
-    try { return JSON.parse(scores); } catch { return null; }
-  }
+  if (typeof scores === 'string') { try { return JSON.parse(scores); } catch { return null; } }
   return scores;
+}
+
+function ScoreBadge({ score }) {
+  const color = score >= 75 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
+  const bg    = score >= 75 ? 'rgba(16,185,129,0.1)' : score >= 50 ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)';
+  return (
+    <span style={{ fontSize:12, fontWeight:600, fontFamily:'monospace', padding:'3px 10px', borderRadius:99, color, background:bg, border:`1px solid ${color}33` }}>
+      {score}
+    </span>
+  );
+}
+
+function EmptyState({ icon, title, body, to, cta }) {
+  return (
+    <main style={{ background:'var(--bg)', minHeight:'100vh', paddingTop:'3.5rem', display:'flex', alignItems:'center', justifyContent:'center', padding:'3.5rem 1.5rem' }}>
+      <div style={{ textAlign:'center', maxWidth:380 }}>
+        <div style={{ width:56, height:56, borderRadius:16, background:'var(--bg-subtle)', border:'1px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 1.5rem' }}>
+          <i className={`ti ${icon}`} style={{ fontSize:26, color:'var(--text-subtle)' }} aria-hidden="true" />
+        </div>
+        <h2 style={{ fontSize:'1.25rem', fontWeight:600, color:'var(--text)', fontFamily:'DM Sans, sans-serif', margin:'0 0 0.5rem' }}>{title}</h2>
+        <p style={{ fontSize:14, color:'var(--text-muted)', marginBottom:'1.5rem' }}>{body}</p>
+        {to && <Link to={to} className="btn btn-primary" style={{ fontSize:14, padding:'9px 20px' }}>{cta}</Link>}
+      </div>
+    </main>
+  );
 }
 
 export default function Results() {
@@ -34,22 +42,11 @@ export default function Results() {
 
   useEffect(() => {
     if (!isLoggedIn) { setLoading(false); return; }
-
-    // Directly fetch with token to rule out api.js issues
     const t = token || localStorage.getItem('token');
-    fetch('/api/history', {
-      headers: { Authorization: `Bearer ${t}` }
-    })
+    fetch('/api/history', { headers: { Authorization: `Bearer ${t}` } })
       .then(r => r.json())
-      .then(data => {
-        if (data.error) throw new Error(data.error);
-        console.log('History data:', data); // debug
-        setSessions(data.sessions || []);
-      })
-      .catch(err => {
-        console.error('History fetch error:', err);
-        setError(err.message);
-      })
+      .then(data => { if (data.error) throw new Error(data.error); setSessions(data.sessions || []); })
+      .catch(err => setError(err.message))
       .finally(() => setLoading(false));
   }, [isLoggedIn, token]);
 
@@ -59,103 +56,81 @@ export default function Results() {
   }
 
   if (!isLoggedIn) return (
-    <main className="min-h-screen pt-14 flex items-center justify-center px-4" style={{ background: 'var(--bg)' }}>
-      <div className="text-center">
-        <div className="text-5xl mb-4">🔒</div>
-        <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text)' }}>Sign in to see your history</h2>
-        <p className="mb-6" style={{ color: 'var(--text-muted)' }}>Your practice sessions are saved to your account.</p>
-        <div className="flex gap-3 justify-center">
-          <Link to="/login" className="btn btn-primary rounded-lg">Sign In</Link>
-          <Link to="/register" className="btn btn-secondary rounded-lg">Create Account</Link>
-        </div>
-      </div>
-    </main>
+    <EmptyState icon="ti-lock" title="Sign in to see your history"
+      body="Your practice sessions are saved to your account." to="/login" cta="Sign in" />
   );
-
   if (loading) return (
-    <main className="min-h-screen pt-14 flex items-center justify-center" style={{ background: 'var(--bg)' }}>
-      <div className="w-8 h-8 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--accent-soft)', borderTopColor: 'var(--accent)' }} />
+    <main style={{ background:'var(--bg)', minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center' }}>
+      <div style={{ width:32, height:32, border:'2px solid var(--accent)', borderTopColor:'transparent', borderRadius:'50%', animation:'spin 0.8s linear infinite' }} />
     </main>
   );
-
   if (error) return (
-    <main className="min-h-screen pt-14 flex items-center justify-center px-4" style={{ background: 'var(--bg)' }}>
-      <div className="text-center">
-        <div className="text-5xl mb-4">⚠️</div>
-        <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text)' }}>Failed to load history</h2>
-        <p className="text-sm mb-6" style={{ color: '#EF4444' }}>{error}</p>
-        <Link to="/practice" className="btn btn-primary rounded-lg">Back to Practice</Link>
-      </div>
-    </main>
+    <EmptyState icon="ti-alert-triangle" title="Failed to load history" body={error} to="/practice" cta="Back to practice" />
+  );
+  if (!sessions.length) return (
+    <EmptyState icon="ti-clipboard-list" title="No sessions yet"
+      body="Complete a practice session and it will appear here." to="/practice" cta="Start practicing" />
   );
 
-  if (sessions.length === 0) return (
-    <main className="min-h-screen pt-14 flex items-center justify-center px-4" style={{ background: 'var(--bg)' }}>
-      <div className="text-center">
-        <div className="text-5xl mb-4">📝</div>
-        <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text)' }}>No sessions yet</h2>
-        <p className="mb-6" style={{ color: 'var(--text-muted)' }}>Complete a practice session and it'll appear here.</p>
-        <Link to="/practice" className="btn btn-primary rounded-lg">Start Practicing →</Link>
-      </div>
-    </main>
-  );
-
-  const avgScore = Math.round(
-    sessions.reduce((a, s) => a + (s.overall_score || 0), 0) / sessions.length
-  );
+  const avg = Math.round(sessions.reduce((a, s) => a + (s.overall_score || 0), 0) / sessions.length);
 
   return (
-    <main className="min-h-screen pt-14 pb-20" style={{ background: 'var(--bg)' }}>
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
+    <main style={{ background:'var(--bg)', minHeight:'100vh', paddingTop:'3.5rem' }}>
+      <div style={{ maxWidth:720, margin:'0 auto', padding:'3rem 1.5rem' }}>
+        {/* Header */}
+        <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:'2rem', gap:16 }}>
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: 'var(--text)' }}>Practice History</h1>
-            <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
-              {sessions.length} session{sessions.length !== 1 ? 's' : ''} · avg score{' '}
-              <span className="font-mono" style={{ color: 'var(--text)' }}>{avgScore}</span>
+            <h1 style={{ fontSize:'1.75rem', fontWeight:700, color:'var(--text)', fontFamily:'DM Sans, sans-serif', margin:'0 0 4px' }}>Practice history</h1>
+            <p style={{ fontSize:14, color:'var(--text-muted)', margin:0 }}>
+              {sessions.length} session{sessions.length !== 1 ? 's' : ''} · average score <span style={{ color:'var(--text)', fontFamily:'monospace', fontWeight:600 }}>{avg}</span>
             </p>
           </div>
-          <Link to="/practice" className="btn btn-primary rounded-lg text-sm">+ New Question</Link>
+          <Link to="/practice" className="btn btn-primary" style={{ fontSize:13, padding:'8px 16px', whiteSpace:'nowrap' }}>
+            <i className="ti ti-plus" style={{ fontSize:13 }} aria-hidden="true" /> New question
+          </Link>
         </div>
 
-        <div className="space-y-4">
+        {/* Sessions */}
+        <div style={{ display:'flex', flexDirection:'column', gap:'0.875rem' }}>
           {sessions.map(s => {
-            const scores = parseScores(s.scores);
-            const feedback = typeof s.feedback === 'string'
-              ? (() => { try { return JSON.parse(s.feedback); } catch { return null; } })()
-              : s.feedback;
-
+            const scores   = parseScores(s.scores);
+            const feedback = typeof s.feedback === 'string' ? (() => { try { return JSON.parse(s.feedback); } catch { return null; } })() : s.feedback;
             return (
-              <div key={s.id} className="card p-5 transition-colors" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                <div className="flex items-start justify-between gap-4 mb-2">
-                  <p className="text-sm font-medium leading-snug" style={{ color: 'var(--text)' }}>{s.question}</p>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    {s.overall_score && <ScorePill score={s.overall_score} />}
-                    <button onClick={() => handleDelete(s.id)}
-                      className="text-xs transition-colors" style={{ color: 'var(--text-muted)', cursor: 'pointer', background: 'none', border: 'none' }} onMouseEnter={e => e.target.style.color = '#EF4444'} onMouseLeave={e => e.target.style.color = 'var(--text-muted)'}>✕</button>
+              <div key={s.id} className="card card-hover" style={{ padding:'1.25rem 1.5rem' }}>
+                <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12, marginBottom:8 }}>
+                  <p style={{ fontSize:14, fontWeight:500, color:'var(--text)', lineHeight:1.5, margin:0 }}>{s.question}</p>
+                  <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
+                    {s.overall_score && <ScoreBadge score={s.overall_score} />}
+                    <button onClick={() => handleDelete(s.id)} aria-label="Delete session"
+                      style={{ background:'none', border:'none', cursor:'pointer', color:'var(--text-subtle)', padding:4, borderRadius:6, lineHeight:1 }}
+                      onMouseEnter={e => e.currentTarget.style.color='#ef4444'}
+                      onMouseLeave={e => e.currentTarget.style.color='var(--text-subtle)'}>
+                      <i className="ti ti-x" style={{ fontSize:14 }} aria-hidden="true" />
+                    </button>
                   </div>
                 </div>
 
-                <p className="text-xs line-clamp-2 mb-3" style={{ color: 'var(--text-muted)' }}>{s.answer}</p>
+                <p style={{ fontSize:12, color:'var(--text-subtle)', margin:'0 0 12px', display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden' }}>{s.answer}</p>
 
-                <div className="flex flex-wrap gap-2 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
+                <div style={{ display:'flex', flexWrap:'wrap', gap:6, paddingTop:12, borderTop:'1px solid var(--border)' }}>
                   {s.category && (
-                    <span className="badge text-xs px-2 py-1" style={{ background: 'var(--bg-subtle)', color: 'var(--text-muted)' }}>✓ {s.category.charAt(0).toUpperCase() + s.category.slice(1)}</span>
+                    <span className="badge" style={{ background:'var(--bg-subtle)', color:'var(--text-muted)', border:'1px solid var(--border)', textTransform:'capitalize' }}>{s.category}</span>
                   )}
                   {scores && Object.entries(scores).map(([k, v]) => (
-                    <span key={k} className="badge text-xs px-2 py-1" style={{ background: 'var(--bg-subtle)', color: 'var(--text-muted)' }}>
-                      {k} · <span style={{ color: 'var(--text)' }} className="font-mono">{v}/10</span>
+                    <span key={k} className="badge" style={{ background:'var(--bg-subtle)', color:'var(--text-muted)', border:'1px solid var(--border)' }}>
+                      {k} <span style={{ color:'var(--text)', fontFamily:'monospace' }}>{v}/10</span>
                     </span>
                   ))}
-                  <span className="badge text-xs px-2 py-1 ml-auto" style={{ background: 'var(--bg-subtle)', color: 'var(--text-subtle)' }}>
+                  <span className="badge" style={{ background:'var(--bg-subtle)', color:'var(--text-subtle)', border:'1px solid var(--border)', marginLeft:'auto' }}>
                     {new Date(s.created_at).toLocaleDateString()}
                   </span>
                 </div>
 
                 {feedback?.keyTakeaway && (
-                  <p className="text-xs mt-3 flex items-start gap-1.5" style={{ color: 'var(--accent)' }}>
-                    <span>💡</span>{feedback.keyTakeaway}
-                  </p>
+                  <div style={{ marginTop:10, display:'flex', alignItems:'flex-start', gap:8 }}>
+                    <i className="ti ti-bulb" style={{ fontSize:14, color:'var(--accent)', flexShrink:0, marginTop:2 }} aria-hidden="true" />
+                    <p style={{ fontSize:12, color:'var(--text-muted)', margin:0 }}>{feedback.keyTakeaway}</p>
+                  </div>
                 )}
               </div>
             );
