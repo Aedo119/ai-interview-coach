@@ -2,19 +2,18 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
-  const { pathname }      = useLocation();
-  const { user, logout, isLoggedIn } = useAuth();
-  const navigate          = useNavigate();
+  const { pathname }                     = useLocation();
+  const { user, logout, isLoggedIn }     = useAuth();
+  const navigate                         = useNavigate();
 
-  function handleLogout() {
-    logout();
-    navigate('/');
-  }
+  function handleLogout() { logout(); navigate('/'); }
 
   const navLinks = [
-    { to: '/',         label: 'Home' },
-    { to: '/practice', label: 'Practice' },
-    { to: '/results',  label: 'History' },
+    { to: '/',          label: 'Home' },
+    { to: '/tracks',    label: 'Tracks' },
+    { to: '/practice',  label: 'Practice' },
+    { to: '/results',   label: 'History' },
+    { to: '/analytics', label: 'Analytics' },
   ];
 
   return (
@@ -43,12 +42,8 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           {isLoggedIn ? (
             <>
-              <span className="text-xs text-slate-500 hidden sm:block">
-                Hi, {user?.name?.split(' ')[0]}
-              </span>
-              <button onClick={handleLogout} className="btn-ghost text-sm">
-                Sign Out
-              </button>
+              <span className="text-xs text-slate-500 hidden sm:block">Hi, {user?.name?.split(' ')[0]}</span>
+              <button onClick={handleLogout} className="btn-ghost text-sm">Sign Out</button>
             </>
           ) : (
             <>
