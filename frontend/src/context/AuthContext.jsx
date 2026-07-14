@@ -7,7 +7,6 @@ export function AuthProvider({ children }) {
   const [token, setToken]     = useState(() => localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
 
-  // Verify token on mount
   useEffect(() => {
     if (!token) { setLoading(false); return; }
     fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
@@ -17,10 +16,10 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false));
   }, []);
 
-  function login(token, user) {
-    localStorage.setItem('token', token);
-    setToken(token);
-    setUser(user);
+  function login(tok, usr) {
+    localStorage.setItem('token', tok);
+    setToken(tok);
+    setUser(usr);
   }
 
   function logout() {
