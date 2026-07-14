@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-const DIMENSIONS = [
+const DIMS = [
   { key: 'clarity',   label: 'Clarity'   },
   { key: 'relevance', label: 'Relevance' },
   { key: 'depth',     label: 'Depth'     },
@@ -8,115 +8,53 @@ const DIMENSIONS = [
   { key: 'impact',    label: 'Impact'    },
 ];
 
-// ── Radar Chart (SVG, no dependencies) ───────────────────────
 function RadarChart({ scores }) {
-  const size    = 200;
-  const cx      = size / 2;
-  const cy      = size / 2;
-  const radius  = 75;
-  const n       = DIMENSIONS.length;
-
-  function polarToXY(angle, r) {
-    const rad = (angle - 90) * (Math.PI / 180);
-    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-  }
-
-  // Grid rings
-  const rings = [2, 4, 6, 8, 10].map(v => {
-    const pts = DIMENSIONS.map((_, i) => {
-      const { x, y } = polarToXY((360 / n) * i, (v / 10) * radius);
-      return `${x},${y}`;
-    });
-    return pts.join(' ');
+  const size = 200, cx = 100, cy = 100, r = 72, n = DIMS.length;
+  const toXY = (angle, radius) => ({
+    x: cx + radius * Math.cos((angle - 90) * Math.PI / 180),
+    y: cy + radius * Math.sin((angle - 90) * Math.PI / 180),
   });
-
-  // Score polygon
-  const scorePts = DIMENSIONS.map((d, i) => {
-    const val = scores?.[d.key] || 0;
-    const { x, y } = polarToXY((360 / n) * i, (val / 10) * radius);
-    return `${x},${y}`;
-  });
-
-  // Axis labels
-  const labels = DIMENSIONS.map((d, i) => {
-    const angle = (360 / n) * i;
-    const { x, y } = polarToXY(angle, radius + 20);
-    return { label: d.label, x, y };
-  });
-
+  const rings = [2,4,6,8,10].map(v =>
+    DIMS.map((_,i) => { const {x,y} = toXY(360/n*i, v/10*r); return `${x},${y}`; }).join(' ')
+  );
+  const scorePts = DIMS.map((d,i) => { const {x,y} = toXY(360/n*i, (scores?.[d.key]||0)/10*r); return `${x},${y}`; });
+  const labels   = DIMS.map((d,i) => { const {x,y} = toXY(360/n*i, r+18); return { label: d.label, x, y }; });
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} className="w-full max-w-[200px] mx-auto">
-      {/* Grid rings */}
-      {rings.map((pts, i) => (
-        <polygon key={i} points={pts} fill="none"
-          stroke="#334155" strokeWidth="0.5" />
-      ))}
-      {/* Axis lines */}
-      {DIMENSIONS.map((_, i) => {
-        const { x, y } = polarToXY((360 / n) * i, radius);
-        return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="#334155" strokeWidth="0.5" />;
-      })}
-      {/* Score fill */}
-      <polygon points={scorePts.join(' ')}
-        fill="#6470f3" fillOpacity="0.25"
-        stroke="#6470f3" strokeWidth="1.5" strokeLinejoin="round" />
-      {/* Score dots */}
-      {DIMENSIONS.map((d, i) => {
-        const val = scores?.[d.key] || 0;
-        const { x, y } = polarToXY((360 / n) * i, (val / 10) * radius);
-        return <circle key={i} cx={x} cy={y} r="3" fill="#6470f3" />;
-      })}
-      {/* Labels */}
-      {labels.map(({ label, x, y }) => (
-        <text key={label} x={x} y={y}
-          textAnchor="middle" dominantBaseline="middle"
-          fontSize="9" fill="#94a3b8">
-          {label}
-        </text>
+    <svg viewBox="0 0 200 200" className="w-full max-w-[180px] mx-auto">
+      {rings.map((pts,i) => <polygon key={i} points={pts} fill="none" stroke="var(--border)" strokeWidth="0.75" />)}
+      {DIMS.map((_,i) => { const {x,y} = toXY(360/n*i, r); return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="var(--border)" strokeWidth="0.75" />; })}
+      <polygon points={scorePts.join(' ')} fill="var(--accent)" fillOpacity="0.15" stroke="var(--accent)" strokeWidth="1.5" strokeLinejoin="round" />
+      {DIMS.map((d,i) => { const {x,y} = toXY(360/n*i, (scores?.[d.key]||0)/10*r); return <circle key={i} cx={x} cy={y} r="3" fill="var(--accent)" />; })}
+      {labels.map(({label,x,y}) => (
+        <text key={label} x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize="8.5" fill="var(--text-muted)">{label}</text>
       ))}
     </svg>
   );
 }
 
-// ── Animated Bar Chart ────────────────────────────────────────
 function BarChart({ scores }) {
-  const barRefs = useRef([]);
-
+  const refs = useRef([]);
   useEffect(() => {
-    barRefs.current.forEach((el, i) => {
+    refs.current.forEach((el, i) => {
       if (!el) return;
-      const dim = DIMENSIONS[i];
-      const pct = ((scores?.[dim.key] || 0) / 10) * 100;
-      setTimeout(() => {
-        el.style.width = `${pct}%`;
-      }, i * 80);
+      const pct = ((scores?.[DIMS[i].key] || 0) / 10) * 100;
+      setTimeout(() => { el.style.width = `${pct}%`; }, i * 70);
     });
   }, [scores]);
-
   return (
     <div className="space-y-3">
-      {DIMENSIONS.map((d, i) => {
-        const score = scores?.[d.key] || 0;
-        const color = score >= 8 ? '#22c55e'
-          : score >= 6 ? '#f59e0b'
-          : score >= 4 ? '#f97316'
-          : '#ef4444';
+      {DIMS.map((d, i) => {
+        const v = scores?.[d.key] || 0;
+        const c = v >= 8 ? '#10b981' : v >= 6 ? '#f59e0b' : v >= 4 ? '#f97316' : '#ef4444';
         return (
           <div key={d.key}>
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-xs text-slate-400">{d.label}</span>
-              <span className="text-xs font-mono font-semibold text-slate-300">{score}/10</span>
+            <div className="flex justify-between mb-1">
+              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{d.label}</span>
+              <span className="text-xs font-mono font-semibold" style={{ color: 'var(--text)' }}>{v}/10</span>
             </div>
-            <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-              <div
-                ref={el => barRefs.current[i] = el}
-                className="h-full rounded-full"
-                style={{
-                  width: '0%',
-                  backgroundColor: color,
-                  transition: `width 0.6s cubic-bezier(0.4,0,0.2,1) ${i * 80}ms`,
-                }}
-              />
+            <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border)' }}>
+              <div ref={el => refs.current[i] = el} className="h-full rounded-full"
+                style={{ width: '0%', backgroundColor: c, transition: `width 0.55s cubic-bezier(0.4,0,0.2,1) ${i*70}ms` }} />
             </div>
           </div>
         );
@@ -125,24 +63,17 @@ function BarChart({ scores }) {
   );
 }
 
-// ── Combined export ───────────────────────────────────────────
 export default function ScoreChart({ scores }) {
   if (!scores) return null;
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-6 items-center">
-        <div>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-            Overview
-          </p>
-          <RadarChart scores={scores} />
-        </div>
-        <div>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-            Breakdown
-          </p>
-          <BarChart scores={scores} />
-        </div>
+    <div className="grid grid-cols-2 gap-6 items-center">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--text-subtle)' }}>Overview</p>
+        <RadarChart scores={scores} />
+      </div>
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--text-subtle)' }}>Breakdown</p>
+        <BarChart scores={scores} />
       </div>
     </div>
   );
