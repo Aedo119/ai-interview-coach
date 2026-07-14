@@ -15,22 +15,22 @@ router.post('/', async (req, res) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO sessions
-        (user_id, question_id, question, category, difficulty, answer, overall_score, scores, feedback)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-       RETURNING id, created_at`,
-      [
-        req.user.id,
-        questionId || null,
-        question,
-        category  || null,
-        difficulty || null,
-        answer,
-        feedback.overallScore || null,
-        JSON.stringify(feedback.scores || {}),
-        JSON.stringify(feedback),
-      ]
-    );
+  `INSERT INTO sessions
+    (user_id, question_id, question, category, difficulty, answer, overall_score, scores, feedback)
+   VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+   RETURNING id, created_at`,
+  [
+    req.user.id,
+    questionId || null,
+    question,
+    category  || null,
+    difficulty || null,
+    answer,
+    feedback.overallScore || null,
+    feedback.scores || {},        // ← no JSON.stringify, pg handles JSONB
+    feedback,                     // ← no JSON.stringify
+  ]
+);
     res.status(201).json({ session: result.rows[0] });
   } catch (err) {
     console.error('Save session error:', err.message);
