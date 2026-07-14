@@ -6,69 +6,42 @@ import { api } from '../utils/api';
 export default function Login() {
   const { login } = useAuth();
   const navigate  = useNavigate();
-  const [form, setForm]   = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
+  const [form, setForm]     = useState({ email: '', password: '' });
+  const [error, setError]   = useState('');
   const [loading, setLoading] = useState(false);
-
-  const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
+  const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError(''); setLoading(true);
-    try {
-      const data = await api.login(form);
-      login(data.token, data.user);
-      navigate('/practice');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+    try { const d = await api.login(form); login(d.token, d.user); navigate('/practice'); }
+    catch (err) { setError(err.message); }
+    finally { setLoading(false); }
   }
 
   return (
-    <main className="min-h-screen pt-14 flex items-center justify-center px-4">
+    <main className="min-h-screen pt-14 flex items-center justify-center px-4" style={{ background: 'var(--bg)' }}>
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <span className="text-4xl">🎯</span>
-          <h1 className="text-2xl font-bold text-white mt-3">Welcome back</h1>
-          <p className="text-slate-500 text-sm mt-1">Sign in to access your history</p>
+          <h1 className="text-2xl font-bold mb-2" style={{ fontFamily: 'DM Sans, sans-serif', color: 'var(--text)' }}>Welcome back</h1>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Sign in to access your history and analytics</p>
         </div>
-
         <div className="card p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="text-xs font-medium text-slate-400 block mb-1.5">Email</label>
-              <input
-                type="email" required value={form.email} onChange={set('email')}
-                placeholder="you@example.com"
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500 text-sm"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-slate-400 block mb-1.5">Password</label>
-              <input
-                type="password" required value={form.password} onChange={set('password')}
-                placeholder="••••••••"
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500 text-sm"
-              />
-            </div>
-
-            {error && (
-              <p className="text-sm text-red-400 bg-red-900/20 border border-red-800/40 rounded-lg px-3 py-2">
-                {error}
-              </p>
-            )}
-
-            <button type="submit" disabled={loading} className="btn-primary w-full justify-center">
-              {loading ? 'Signing in…' : 'Sign In'}
+            {[['email','Email','you@example.com','email'],['password','Password','••••••••','password']].map(([k,l,p,t]) => (
+              <div key={k}>
+                <label className="label">{l}</label>
+                <input type={t} required value={form[k]} onChange={set(k)} placeholder={p} className="input" />
+              </div>
+            ))}
+            {error && <p className="text-sm px-3 py-2 rounded-lg" style={{ color: '#ef4444', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>{error}</p>}
+            <button type="submit" disabled={loading} className="btn btn-primary w-full justify-center py-2.5">
+              {loading ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
         </div>
-
-        <p className="text-center text-sm text-slate-500 mt-4">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-brand-400 hover:text-brand-300">Sign up free</Link>
+        <p className="text-center text-sm mt-4" style={{ color: 'var(--text-muted)' }}>
+          No account? <Link to="/register" style={{ color: 'var(--accent)' }} className="font-medium">Create one free</Link>
         </p>
       </div>
     </main>
