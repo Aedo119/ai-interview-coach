@@ -10,6 +10,7 @@ const authRoutes      = require('./routes/auth');
 const historyRoutes   = require('./routes/history');
 const tracksRoutes    = require('./routes/tracks');
 const analyticsRoutes = require('./routes/analytics');
+const codingRoutes    = require('./routes/coding');
 const errorHandler    = require('./middleware/errorHandler');
 
 const app  = express();
@@ -28,6 +29,7 @@ app.use('/api/auth',      authRoutes);
 app.use('/api/history',   historyRoutes);
 app.use('/api/tracks',    tracksRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/coding',    codingRoutes);
 
 app.get('/api/health', (req, res) =>
   res.json({ status: 'ok', timestamp: new Date().toISOString() }));
@@ -35,5 +37,5 @@ app.get('/api/health', (req, res) =>
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(` Interview Coach API running on port ${PORT}`);
+  console.log(`Interview Coach API running on port ${PORT}`);
 });
