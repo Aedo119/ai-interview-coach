@@ -7,6 +7,7 @@ const MoonIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="non
 
 const NAV_LINKS = [
   { to: '/tracks',    label: 'Tracks'    },
+  { to: '/mock',      label: 'Mock interview' },
   { to: '/practice',  label: 'Practice'  },
   { to: '/results',   label: 'History'   },
   { to: '/analytics', label: 'Analytics' },

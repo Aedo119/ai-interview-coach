@@ -10,6 +10,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232563EB'/><polyline points='75,30 45,60 30,45' stroke='white' stroke-width='10' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+
+    <!-- CodeMirror 6 — loaded as UMD bundles for global access -->
+    <script src="https://cdn.jsdelivr.net/npm/codemirror@6.0.1/dist/index.js" onload="window.CM_BASE=CM"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@codemirror/lang-javascript@6.2.2/dist/index.js" onload="window.CM_LANG_JS=this"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@codemirror/lang-python@6.1.6/dist/index.js" onload="window.CM_LANG_PY=this"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@codemirror/theme-one-dark@6.1.2/dist/index.js" onload="window.CM_THEME=this"></script>
   </head>
   <body>
     <div id="root"></div>
