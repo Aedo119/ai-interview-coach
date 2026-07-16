@@ -76,7 +76,7 @@ JSON schema (keep all string values SHORT — max 20 words each):
   "improvements": ["<10 words max>", "<10 words max>", "<10 words max>"],
   "keyTakeaway": "<one sentence>",
   "interviewerThoughts": "<one sentence>",
-  "improvedAnswer": "Concise rewritten answer in first person, max 150 words, demonstrating best practices."
+  "improvedAnswer": "Concise rewritten answer in first person, max 150 words, demonstrating best practices and mimic an ideal interview candidate."
 }
 Question (${category || 'general'}, ${difficulty || 'medium'}): "${question}"
 Answer: "${answer}"`;

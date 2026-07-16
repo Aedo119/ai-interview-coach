@@ -11,6 +11,7 @@ import Tracks        from './pages/Tracks';
 import Analytics     from './pages/Analytics';
 import MockInterview from './pages/MockInterview';
 import MockExport    from './pages/MockExport';
+import Profile       from './pages/Profile';
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
                   <Route path="/tracks"    element={<Tracks />}        />
                   <Route path="/analytics" element={<Analytics />}     />
                   <Route path="/mock"      element={<MockInterview />} />
+                  <Route path="/profile"   element={<Profile />}       />
                 </Routes>
               </>
             } />

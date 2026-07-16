@@ -47,7 +47,10 @@ export default function Navbar() {
           </button>
           {isLoggedIn ? (
             <div className="flex items-center gap-3">
-              <span className="text-sm hidden sm:block" style={{ color: 'var(--text-muted)' }}>{user?.name?.split(' ')[0]}</span>
+              <Link to="/profile" className="text-sm hidden sm:flex items-center gap-1.5" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>
+                <i className="ti ti-user-circle" style={{ fontSize: 15 }} aria-hidden="true" />
+                {user?.name?.split(' ')[0]}
+              </Link>
               <button onClick={() => { logout(); navigate('/'); }} className="btn btn-secondary text-sm">Sign out</button>
             </div>
           ) : (

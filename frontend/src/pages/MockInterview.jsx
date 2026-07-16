@@ -76,6 +76,25 @@ function Modal({ title, body, confirmLabel, cancelLabel, onConfirm, onCancel, da
   );
 }
 
+/* ── Floating exit button — always visible, survives fullscreen quirks ── */
+function FloatingExit({ onClick }) {
+  return (
+    <button onClick={onClick} aria-label="Exit interview"
+      style={{
+        position:'fixed', top:14, right:14, zIndex:10000,
+        display:'flex', alignItems:'center', gap:6,
+        padding:'8px 14px', borderRadius:99,
+        background:'rgba(15,23,42,0.85)', color:'#fff',
+        border:'1px solid rgba(255,255,255,0.15)',
+        fontSize:12, fontWeight:500, cursor:'pointer',
+        backdropFilter:'blur(6px)', boxShadow:'0 4px 12px rgba(0,0,0,0.25)',
+      }}>
+      <i className="ti ti-door-exit" style={{ fontSize:14 }} aria-hidden="true" />
+      Exit
+    </button>
+  );
+}
+
 /* ── Fullscreen warning banner ───────────────────────────── */
 function FsWarning({ onReenter }) {
   return (
@@ -565,6 +584,16 @@ export default function MockInterview() {
   const { isFs, enter, exit: exitFs } = useFullscreen(onFsExit);
   const timer = useTimer(config ? config.minutes * 60 : 1800, () => finishSession());
 
+  // ESC key also opens the exit confirmation, as a reliable fallback
+  useEffect(() => {
+    if (phase !== PHASES.INTERVIEW) return;
+    const handler = (e) => {
+      if (e.key === 'Escape') setShowExit(true);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [phase]);
+
   async function handleStart(cfg) {
     setConfig(cfg);
     let qs = [];
@@ -687,6 +716,11 @@ export default function MockInterview() {
 
   return (
     <>
+      {/* Floating exit — always visible during interview, independent of layout */}
+      {phase === PHASES.INTERVIEW && (
+        <FloatingExit onClick={() => setShowExit(true)} />
+      )}
+
       {/* Fullscreen warning banner */}
       {fsWarning && phase === PHASES.INTERVIEW && (
         <FsWarning onReenter={() => { enter(); setFsWarning(false); }} />
